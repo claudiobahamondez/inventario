@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        tools:layout_editor_absoluteX="128dp"
+        tools:layout_editor_absoluteY="128dp">
+
+        <ImageView
+            android:id="@+id/imageLogo"
+            android:layout_width="154dp"
+            android:layout_height="129dp"
+            android:src="@drawable/logo" />
+
+        <Space
+            android:layout_width="364dp"
+            android:layout_height="23dp" />
+
+        <TextView
+            android:id="@+id/textViewUsuario"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Escanear Usuario"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/textUsuario"
+            android:layout_width="396dp"
+            android:layout_height="54dp"
+            android:ems="10"
+            android:gravity="center"
+            android:inputType="textPersonName"
+            android:textSize="50dp" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp" />
+
+        <Button
+            android:id="@+id/buttonLogin"
+            android:layout_width="205dp"
+            android:layout_height="54dp"
+            android:background="@drawable/button_background"
+            android:text="Iniciar sesión"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/textViewStatusScanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="12sp" />
+
+        <ProgressBar
+            android:id="@+id/progressBarLog"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:indeterminate="true" />
+
+        <Space
+            android:layout_width="396dp"
+            android:layout_height="13dp" />
+
+        <TextView
+            android:id="@+id/textViewApp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Inventario b100  v.2.3.1" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

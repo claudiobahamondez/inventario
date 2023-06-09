@@ -256,7 +256,7 @@ public class Log extends Activity implements EMDKListener, StatusListener, DataL
     }
 
     private void validarUsuario(String URL, String usuario) {
-        StringRequest sr = new StringRequest(Request.Method.POST, "http://10.107.226.241/apis/inv/validar_usuario", new Response.Listener<String>() {
+        StringRequest sr = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 if (!response.isEmpty()) {

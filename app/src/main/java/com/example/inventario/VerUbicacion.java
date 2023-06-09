@@ -105,12 +105,9 @@ public class VerUbicacion extends AppCompatActivity {
         VisualAdapter visualAdapter = new VisualAdapter(this, R.layout.fila_lista, matriz, imagenes);
         listViewandowski.setAdapter(visualAdapter);
         listViewandowski.setOnScrollListener(new AbsListView.OnScrollListener() {
-
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-
             }
-
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (totalItemCount == 0) {

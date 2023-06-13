@@ -60,6 +60,7 @@ public class MainActivity extends Activity implements EMDKListener, StatusListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         losExtras = getIntent().getExtras();
         try {
             usuario = losExtras.getString("loggedUser");

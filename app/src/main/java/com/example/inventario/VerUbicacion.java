@@ -1,12 +1,14 @@
 package com.example.inventario;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.ColorDrawable;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +32,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -50,6 +54,11 @@ public class VerUbicacion extends AppCompatActivity {
     boolean elOK;
     Bundle losExtras;
     AlertDialog alerta;
+    Dialog waitDialog;
+    Dialog progressDialog;
+    ProgressBar progressBar;
+    TextView tvProgress;
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,14 +77,14 @@ public class VerUbicacion extends AppCompatActivity {
         elOK = true;
         botonNext = (Button) findViewById(R.id.buttonSiguiente);
 
-        mensajeDeProcesando();
+        showProgressDialog();
 
         mostrarItemsUbicacion("http://10.107.226.241/apis/inv/ver_ubicacion", ubicacion);
 
         botonNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mensajeDeProcesando();
+                showProgressDialog();
                 ingresarValidacion("http://10.107.226.241/apis/inv/insertar_inventario_ubicacion", usuario, ubicacion);
             }
         });
@@ -95,10 +104,30 @@ public class VerUbicacion extends AppCompatActivity {
             System.out.println(ex);
         }
     }
-
-
+    
     public void mensajeDeProcesando() {
         pd = ProgressDialog.show(this, "Procesando", "Espere unos segundos...", true, false);
+    }
+
+    private void showProgressDialog() {
+        progressDialog = new Dialog(this);
+        progressDialog.setContentView(R.layout.dialog_progress);
+        progressDialog.setCancelable(false);
+        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+
+        progressBar = progressDialog.findViewById(R.id.progressBar);
+        tvProgress = progressDialog.findViewById(R.id.tvProgress);
+        progressBar.setProgress(0);
+        String progressText = "Cargando... ";
+        tvProgress.setText(progressText);
+
+        progressDialog.show();
+    }
+
+    private void hideProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 
     public void adaptadorInfoImagen(ArrayList[] matriz, ArrayList imagenes) {
@@ -147,9 +176,7 @@ public class VerUbicacion extends AppCompatActivity {
                     }
                     cargarImagenes(matrizDeArreglos);
                 } catch (Exception e) {
-                    if (VerUbicacion.this.pd != null) {
-                        VerUbicacion.this.pd.dismiss();
-                    }
+                    hideProgressDialog();
                     e.printStackTrace();
                     alertaDeErrorModal("ERROR ", "Image Load Epic Fail ("+e.toString()+")");
                 }
@@ -157,9 +184,7 @@ public class VerUbicacion extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                if (VerUbicacion.this.pd != null) {
-                    VerUbicacion.this.pd.dismiss();
-                }
+                hideProgressDialog();
                 alertaDeErrorModal("ERROR", "Volley fail ("+error.toString()+")");
             }
         }) {
@@ -178,7 +203,7 @@ public class VerUbicacion extends AppCompatActivity {
         new VerUbicacion.GetItemImages().execute(matriz);
     }
 
-    class GetItemImages extends AsyncTask<ArrayList<String>[], Void, Bitmap> {
+    class GetItemImages extends AsyncTask<ArrayList<String>[], Integer, Bitmap> {
 
         private Exception exception = null;
         ArrayList<String>[] matrizea;
@@ -215,14 +240,21 @@ public class VerUbicacion extends AppCompatActivity {
                         }
                     }
                 }
+                int progress = (int) ((i / (float) matrizea.length) * 100);
+                publishProgress(progress);
             }
             return null;
         }
 
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            // Actualizar la UI con el valor de progreso
+            updateProgress(values[0]); // values[0] contiene el valor enviado por publishProgress()
+        }
+
         protected void onPostExecute(Bitmap feed) {
-            if (VerUbicacion.this.pd != null) {
-                VerUbicacion.this.pd.dismiss();
-            }
+            hideProgressDialog();
             if(exception==null){
                 adaptadorInfoImagen(matrizea, lasimagenes);
             }else{
@@ -238,28 +270,20 @@ public class VerUbicacion extends AppCompatActivity {
             public void onResponse(String response) {
                 if (!response.isEmpty()) {
                     if (elInterpretador(response).equals("OK")) {
-                        if (VerUbicacion.this.pd != null) {
-                            VerUbicacion.this.pd.dismiss();
-                        }
+                        hideProgressDialog();
                         volverAlPincharUbicacion();
                     } else {
-                        if (VerUbicacion.this.pd != null) {
-                            VerUbicacion.this.pd.dismiss();
-                        }
+                        hideProgressDialog();
                         alertaDeErrorModal("ERROR", elInterpretador(response));
                     }
                 } else {
-                    if (VerUbicacion.this.pd != null) {
-                        VerUbicacion.this.pd.dismiss();
-                    }
+                    hideProgressDialog();
                     alertaDeErrorModal("ERROR", "Couldn't read no binary information");
                 }
             }
         }, new Response.ErrorListener() {
             public void onErrorResponse(VolleyError error) {
-                if (VerUbicacion.this.pd != null) {
-                    VerUbicacion.this.pd.dismiss();
-                }
+                hideProgressDialog();
                 alertaDeErrorModal("ERROR DE CONEXION", "Verifica la conexion del dispositivo. Code 267. "+error.toString());
             }
         }) {
@@ -351,6 +375,14 @@ public class VerUbicacion extends AppCompatActivity {
             return dir.delete();
         } else {
             return false;
+        }
+    }
+
+    private void updateProgress(int progress) {
+        if (progressBar != null && tvProgress != null) {
+            progressBar.setProgress(progress);
+            String progressText = "Cargando... " + progress + "%";
+            tvProgress.setText(progressText);
         }
     }
 
